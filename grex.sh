@@ -21,7 +21,7 @@ export KEY=b0ba
 export FPGA_ADDR="192.168.0.5"
 
 echo -e "${LIGHTRED}SETTING UP SNAP${NC}"
-snapctl /home/kiran/t0/gateware/grex_gateware_2023-02-09_1739.fpg ${FPGA_ADDR} --gain=4
+snapctl /home/kiran/t0/gateware/grex_gateware.fpg ${FPGA_ADDR} --gain=4
 
 echo -e "${LIGHTRED}SETTING UP PSRDADA BUFFERS${NC}"
 # Data is float32s all around, so 4 bytes per pixel
