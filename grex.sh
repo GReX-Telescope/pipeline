@@ -18,10 +18,10 @@ ${NC}
 CHANNELS=2048
 export DADA_SAMPLES=200000
 export KEY=b0ba
-export FPGA_ADDR="192.168.0.5"
+export FPGA_ADDR="192.168.88.3"
 
 echo -e "${LIGHTRED}SETTING UP SNAP${NC}"
-snapctl ../t0/gateware/grex_gateware.fpg ${FPGA_ADDR} --gain=4
+snap_bringup ../t0/gateware/grex_gateware.fpg ${FPGA_ADDR} --gain=4
 
 echo -e "${LIGHTRED}SETTING UP PSRDADA BUFFERS${NC}"
 # Data is float32s all around, so 4 bytes per pixel
