@@ -18,7 +18,7 @@ ${NC}
 CHANNELS=2048
 export DADA_SAMPLES=200000
 export KEY=b0ba
-export FPGA_ADDR="192.168.88.3"
+export FPGA_ADDR="192.168.0.3"
 
 echo -e "${LIGHTRED}SETTING UP SNAP${NC}"
 snap_bringup ../t0/gateware/grex_gateware.fpg ${FPGA_ADDR} --gain=4
