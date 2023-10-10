@@ -3,7 +3,7 @@ NC='\033[0m'
 LIGHTRED='\033[1;31m'
 LIGHTGREEN='\033[1;32m'
 
-SCRIPT_DIR=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
+export SCRIPT_DIR=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
 
 echo -e "
 ${LIGHTGREEN}
@@ -23,14 +23,14 @@ export KEY=b0ba
 export FPGA_ADDR="192.168.0.3"
 
 echo -e "${LIGHTRED}SETTING UP SNAP${NC}"
-snap_bringup $SCRIPT_DIR/../t0/gateware/grex_gateware.fpg ${FPGA_ADDR} --gain=1
+snap_bringup "$SCRIPT_DIR"/../t0/gateware/grex_gateware.fpg ${FPGA_ADDR} --gain=1
 
 echo -e "${LIGHTRED}SETTING UP PSRDADA BUFFERS${NC}"
 # Data is float32s all around, so 4 bytes per pixel
 dada_db -k ${KEY} -b $((CHANNELS*DADA_SAMPLES*4)) -l -p
 
 echo -e "${LIGHTRED}STARTING PIPELINE${NC}"
-parallel -u ::: './tasks/t0.sh 1' './tasks/t1.sh 2'
+parallel -u ::: "${SCRIPT_DIR}/./tasks/t0.sh 1" "${SCRIPT_DIR}/./tasks/t1.sh 2"
 
-echo -e "${RED}CLEANING UP${NC}"
+echo -e "${LIGHTRED}CLEANING UP${NC}"
 dada_db -k ${KEY} -d
