@@ -2,7 +2,7 @@
 
 ### Created by Kiran Shila ( kiranshila ) on 2024-01-23
 ### Based on https://github.com/pforret/bashew 1.20.5
-script_version="0.2.0" # if there is a VERSION.md in this script's folder, that will have priority over this version number
+script_version="0.2.1" # if there is a VERSION.md in this script's folder, that will have priority over this version number
 readonly script_author="me@kiranshila.com"
 readonly script_created="2024-01-23"
 readonly run_as_root=-1 # run_as_root: 0 = don't check anything / 1 = script MUST run as root / -1 = script MAY NOT run as root
@@ -57,6 +57,7 @@ option|dg|digital_gain|digital gain for the ADC|4
 option|rg|requant_gain|set a fixed requantization gain|5
 option|d|samples|Number of samples in each DADA block|200000
 option|s|snap|IP address of the SNAP|192.168.0.3
+option|mac|mac|MAC address of the NIC we'll get packets on
 choice|1|action|action to perform/pipeline mode|full,cands,filterbank,none,check,env,update,cleanup
 " -v -e '^#' -e '^\s*$'
 }
@@ -212,6 +213,7 @@ function t0_cmd() {
     --fpga-addr $snap:69 \
     --injection-cadence $injection_cadence \
     --dump-path $voltage_path \
+    --mac $mac \
     --filterbank-path $filterbank_path $1"
 }
 
