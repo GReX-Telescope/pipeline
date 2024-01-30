@@ -2,7 +2,7 @@
 
 ### Created by Kiran Shila ( kiranshila ) on 2024-01-23
 ### Based on https://github.com/pforret/bashew 1.20.5
-script_version="0.2.1" # if there is a VERSION.md in this script's folder, that will have priority over this version number
+script_version="0.2.2" # if there is a VERSION.md in this script's folder, that will have priority over this version number
 readonly script_author="me@kiranshila.com"
 readonly script_created="2024-01-23"
 readonly run_as_root=-1 # run_as_root: 0 = don't check anything / 1 = script MUST run as root / -1 = script MAY NOT run as root
@@ -58,7 +58,7 @@ option|rg|requant_gain|set a fixed requantization gain|5
 option|d|samples|Number of samples in each DADA block|200000
 option|s|snap|IP address of the SNAP|192.168.0.3
 option|mac|mac|MAC address of the NIC we'll get packets on
-choice|1|action|action to perform/pipeline mode|full,cands,filterbank,none,check,env,update,cleanup
+choice|1|action|action to perform/pipeline mode|full,cand_socket,cand_file,filterbank,none,check,env,update,cleanup
 " -v -e '^#' -e '^\s*$'
 }
 
@@ -93,8 +93,8 @@ function Script:main() {
       dada_cleanup
       ;;
 
-    cands)
-      #TIP: use «$script_prefix cands» to run the pipeline through heimdall, dumping candidates
+    cand_file)
+      #TIP: use «$script_prefix cand_file» to run the pipeline through heimdall, dumping candidates to a file
       Os:require "parallel"
       snap_init
       dada_init
@@ -102,6 +102,22 @@ function Script:main() {
       # Construct pipeline process launch commands
       t0=$(t0_cmd "psrdada -k $KEY -s $samples")
       t1=$(t1_cmd "")
+      trap _int SIGINT
+      parallel -u ::: "$t0" "$t1" &
+      child=$!
+      wait "$child"
+      dada_cleanup
+      ;;
+
+    cand_socket)
+      #TIP: use «$script_prefix cand_socket» to run the pipeline through heimdall, dumping candidates to a socket
+      Os:require "parallel"
+      snap_init
+      dada_init
+      IO:announce "Starting T0 -> T1 Candidate File Pipeline"
+      # Construct pipeline process launch commands
+      t0=$(t0_cmd "psrdada -k $KEY -s $samples")
+      t1=$(t1_cmd "-coincidencer 127.0.0.1:12345")
       trap _int SIGINT
       parallel -u ::: "$t0" "$t1" &
       child=$!
