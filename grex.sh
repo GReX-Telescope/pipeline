@@ -2,7 +2,7 @@
 
 ### Created by Kiran Shila ( kiranshila ) on 2024-01-23
 ### Based on https://github.com/pforret/bashew 1.20.5
-script_version="0.2.2" # if there is a VERSION.md in this script's folder, that will have priority over this version number
+script_version="0.2.3" # if there is a VERSION.md in this script's folder, that will have priority over this version number
 readonly script_author="me@kiranshila.com"
 readonly script_created="2024-01-23"
 readonly run_as_root=-1 # run_as_root: 0 = don't check anything / 1 = script MUST run as root / -1 = script MAY NOT run as root
@@ -46,6 +46,7 @@ flag|tg|trigger|trigger packets directly (no GPS)
 option|ap|average_power|2^n for downsampling|4
 option|vp|vbuf_power|2^n for the voltage buffer size|19
 option|ic|injection_cadence|time in seconds in inject fake pulses|36000
+option|ip|injection_path|path to folder of fake pulses (.dat)|$script_install_folder/fake
 option|vp|voltage_path|directory to save voltage dumps|/hdd/data/voltages/
 option|fp|filterbank_path|directory to save filterbanks|/hdd/data/filterbanks/
 option|ds|dm_start|lower limit DM of search|2
@@ -228,6 +229,7 @@ function t0_cmd() {
     $requant_option \
     --fpga-addr $snap:69 \
     --injection-cadence $injection_cadence \
+    --pulse-path $injection_path \
     --dump-path $voltage_path \
     --mac $mac \
     --filterbank-path $filterbank_path $1"
