@@ -81,7 +81,7 @@ function Script:main() {
     full)
       #TIP: use «$script_prefix full» to run the full FRB detection pipeline
       Os:require "parallel"
-      snap_init
+      eval $(snap_init_cmd)
       dada_init
       IO:announce "Starting T0 -> T1 -> T2 Pipeline"
       # Construct pipeline process launch commands
@@ -98,7 +98,7 @@ function Script:main() {
     cand_file)
       #TIP: use «$script_prefix cand_file» to run the pipeline through heimdall, dumping candidates to a file
       Os:require "parallel"
-      snap_init
+      eval $(snap_init_cmd)
       dada_init
       IO:announce "Starting T0 -> T1 Candidate File Pipeline"
       # Construct pipeline process launch commands
@@ -114,7 +114,7 @@ function Script:main() {
     cand_socket)
       #TIP: use «$script_prefix cand_socket» to run the pipeline through heimdall, dumping candidates to a socket
       Os:require "parallel"
-      snap_init
+      eval $(snap_init_cmd)
       dada_init
       IO:announce "Starting T0 -> T1 Candidate File Pipeline"
       # Construct pipeline process launch commands
@@ -129,7 +129,7 @@ function Script:main() {
 
     filterbank)
       #TIP: use «$script_prefix filterbank» to run just T0 to fill a filterbank file
-      snap_init
+      eval $(snap_init_cmd)
       IO:announce "Starting T0 -> Filterbank Pipeline"
       t0=$(t0_cmd "filterbank")
       trap _int SIGINT
@@ -140,7 +140,7 @@ function Script:main() {
 
     none)
       #TIP: use «$script_prefix none» to run just T0 with no exfil (only talks to Prometheus)
-      snap_init
+      eval $(snap_init_cmd)
       IO:announce "Starting T0"
       t0=$(t0_cmd "")
       trap _int SIGINT
@@ -186,11 +186,10 @@ _int() {
   kill -INT "$child" 2>/dev/null
 }
 
-function snap_init() {
+function snap_init_cmd() {
   IO:announce "Initializing SNAP"
-  cd $t2_path
-  poetry run snap_bringup "$gateware" "$snap" --gain="$digital_gain"
-  cd -
+  Os:require "poetry" "pipx install poetry"
+  echo -e "cd $snap_bringup_path; poetry run snap_bringup $gateware $snap --gain=$digital_gain"
 }
 
 function dada_init() {
