@@ -186,19 +186,16 @@ _int() {
 }
 
 function snap_init() {
-  Os:require "snap_bringup" "guix install snap_bringup"
   IO:announce "Initializing SNAP"
   snap_bringup "$gateware" "$snap" --gain="$digital_gain"
 }
 
 function dada_init() {
-  Os:require "dada_db" "guix install psrdada"
   IO:announce "Setting up PSRDADA buffers"
   dada_db -k $KEY -b $((CHANNELS*samples*4)) -l -p
 }
 
 function dada_cleanup() {
-  Os:require "dada_db" "guix install psrdada"
   IO:announce "Cleaning up PSRDADA buffers"
   dada_db -k $KEY -d
 }
@@ -237,18 +234,9 @@ function t0_cmd() {
 
 function t1_cmd() {
   Os:require "taskset" "util-linux"
-  Os:require "heimdall" "guix install heimdall-astro"
   Os:require "grep"
 
-  # LD_PRELOAD the CUDA drivers to make this work with the guix install
-  cuda_path=$(ldconfig -p | grep libcuda.so.1 | awk '/x86_64|lib64/ {print $NF}')
-  ptxjit_path=$(ldconfig -p | grep libnvidia-ptxjitcompiler.so.1 | awk '/x86_64|lib64/ {print $NF}')
-
-  IO:debug "CUDA Path: $cuda_path"
-  IO:debug "PTX JIT Path: $ptxjit_path"
-
-  echo -e "LD_PRELOAD=\"$cuda_path $ptxjit_path\" \
-    taskset -c 8-15 \
+  echo -e "taskset -c 8-15 \
     heimdall -k $KEY \
     -gpu_id 0 \
     -nsamps_gulp $samples \
