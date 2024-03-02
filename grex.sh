@@ -2,7 +2,7 @@
 
 ### Created by Kiran Shila ( kiranshila ) on 2024-01-23
 ### Based on https://github.com/pforret/bashew 1.20.5
-script_version="0.3.0" # if there is a VERSION.md in this script's folder, that will have priority over this version number
+script_version="0.3.1" # if there is a VERSION.md in this script's folder, that will have priority over this version number
 readonly script_author="me@kiranshila.com"
 readonly script_created="2024-01-23"
 readonly run_as_root=-1 # run_as_root: 0 = don't check anything / 1 = script MUST run as root / -1 = script MAY NOT run as root
@@ -54,6 +54,7 @@ option|de|dm_end|upper limit DM of search|3000
 option|f|gateware|gateware file|$script_install_folder/../t0/gateware/grex_gateware.fpg
 option|t0|t0_path|path to t0 executable|$script_install_folder/../t0/target/release/grex_t0
 option|t2|t2_path|path to t2 folder|$script_install_folder/../t2
+option|sb|snap_bringup_path|path to snap bringup python script|$script_install_folder/../snap_bringup
 option|dg|digital_gain|digital gain for the ADC|4
 option|rg|requant_gain|set a fixed requantization gain|5
 option|d|samples|Number of samples in each DADA block|200000
@@ -187,7 +188,9 @@ _int() {
 
 function snap_init() {
   IO:announce "Initializing SNAP"
-  snap_bringup "$gateware" "$snap" --gain="$digital_gain"
+  cd $t2_path
+  poetry run snap_bringup "$gateware" "$snap" --gain="$digital_gain"
+  cd -
 }
 
 function dada_init() {
