@@ -2,7 +2,7 @@
 
 ### Created by Kiran Shila ( kiranshila ) on 2024-01-23
 ### Based on https://github.com/pforret/bashew 1.20.5
-script_version="0.2.3" # if there is a VERSION.md in this script's folder, that will have priority over this version number
+script_version="0.3.0" # if there is a VERSION.md in this script's folder, that will have priority over this version number
 readonly script_author="me@kiranshila.com"
 readonly script_created="2024-01-23"
 readonly run_as_root=-1 # run_as_root: 0 = don't check anything / 1 = script MUST run as root / -1 = script MAY NOT run as root
