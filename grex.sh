@@ -190,7 +190,7 @@ function snap_init() {
   IO:announce "Initializing SNAP"
   Os:require "poetry" "pipx install poetry"
   # Doing it like this because we want the subshell for the path of poetry to work
-  eval "cd $snap_bringup_path; poetry run snap_bringup $gateware $snap --gain=$digital_gain"
+  eval "cd $snap_bringup_path; poetry run snap_bringup $gateware $snap --gain=$digital_gain; cd -"
 }
 
 function dada_init() {
