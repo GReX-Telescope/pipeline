@@ -82,7 +82,7 @@ function Script:main() {
       #TIP: use «$script_prefix full» to run the full FRB detection pipeline
       Os:require "parallel"
       snap=$(snap_init_cmd)
-      eval snap
+      eval "$snap"
       dada_init
       IO:announce "Starting T0 -> T1 -> T2 Pipeline"
       # Construct pipeline process launch commands
@@ -100,7 +100,7 @@ function Script:main() {
       #TIP: use «$script_prefix cand_file» to run the pipeline through heimdall, dumping candidates to a file
       Os:require "parallel"
       snap=$(snap_init_cmd)
-      eval snap
+      eval "$snap"
       dada_init
       IO:announce "Starting T0 -> T1 Candidate File Pipeline"
       # Construct pipeline process launch commands
@@ -117,7 +117,7 @@ function Script:main() {
       #TIP: use «$script_prefix cand_socket» to run the pipeline through heimdall, dumping candidates to a socket
       Os:require "parallel"
       snap=$(snap_init_cmd)
-      eval snap
+      eval "$snap"
       dada_init
       IO:announce "Starting T0 -> T1 Candidate File Pipeline"
       # Construct pipeline process launch commands
@@ -133,7 +133,7 @@ function Script:main() {
     filterbank)
       #TIP: use «$script_prefix filterbank» to run just T0 to fill a filterbank file
       snap=$(snap_init_cmd)
-      eval snap
+      eval "$snap"
       IO:announce "Starting T0 -> Filterbank Pipeline"
       t0=$(t0_cmd "filterbank")
       trap _int SIGINT
@@ -145,7 +145,7 @@ function Script:main() {
     none)
       #TIP: use «$script_prefix none» to run just T0 with no exfil (only talks to Prometheus)
       snap=$(snap_init_cmd)
-      eval snap
+      eval "$snap"
       IO:announce "Starting T0"
       t0=$(t0_cmd "")
       trap _int SIGINT
