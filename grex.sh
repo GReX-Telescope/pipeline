@@ -83,8 +83,8 @@ function Script:main() {
     full)
       #TIP: use «$script_prefix full» to run the full FRB detection pipeline
       Os:require "parallel"
-      snap_init
       dada_init
+      snap_init
       IO:announce "Starting T0 -> T1 -> T2 Pipeline"
       # Construct pipeline process launch commands
       t0=$(t0_cmd "psrdada -k $FROM_T0_KEY -s $samples")
@@ -101,8 +101,8 @@ function Script:main() {
     cand_file)
       #TIP: use «$script_prefix cand_file» to run the pipeline through heimdall, dumping candidates to a file
       Os:require "parallel"
-      snap_init
       dada_init
+      snap_init
       IO:announce "Starting T0 -> T1 Candidate File Pipeline"
       # Construct pipeline process launch commands
       t0=$(t0_cmd "psrdada -k $FROM_T0_KEY -s $samples")
@@ -118,8 +118,8 @@ function Script:main() {
     cand_socket)
       #TIP: use «$script_prefix cand_socket» to run the pipeline through heimdall, dumping candidates to a socket
       Os:require "parallel"
-      snap_init
       dada_init
+      snap_init
       IO:announce "Starting T0 -> T1 Candidate File Pipeline"
       # Construct pipeline process launch commands
       t0=$(t0_cmd "psrdada -k $FROM_T0_KEY -s $samples")
@@ -135,8 +135,8 @@ function Script:main() {
     dada)
      #TIP: use «$script_prefix dada» to run the pipeline to fill a DADA buffer (inlcluding RFI filtering), but not starting heimdall
       Os:require "parallel"
-      snap_init
       dada_init
+      snap_init
       IO:announce "Starting T0 -> DADA Buffer Pipeline"
       # Construct pipeline process launch commands
       t0=$(t0_cmd "psrdada -k $FROM_T0_KEY -s $samples")
