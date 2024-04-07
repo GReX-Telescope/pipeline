@@ -259,7 +259,7 @@ function t0_cmd() {
 }
 
 function clean_rfi_cmd() {
-  echo -e "$clean_rfi_path psrdada -f $FROM_T0_KEY -t $FROM_RFI_CLEANING_KEY"
+  echo -e "$clean_rfi_path dada -f $FROM_T0_KEY -t $FROM_RFI_CLEANING_KEY"
 }
 
 function t1_cmd() {
