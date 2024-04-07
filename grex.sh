@@ -2,7 +2,7 @@
 
 ### Created by Kiran Shila ( kiranshila ) on 2024-01-23
 ### Based on https://github.com/pforret/bashew 1.20.5
-script_version="0.3.2" # if there is a VERSION.md in this script's folder, that will have priority over this version number
+script_version="0.4.0" # if there is a VERSION.md in this script's folder, that will have priority over this version number
 readonly script_author="me@kiranshila.com"
 readonly script_created="2024-01-23"
 readonly run_as_root=-1 # run_as_root: 0 = don't check anything / 1 = script MUST run as root / -1 = script MAY NOT run as root
@@ -53,6 +53,7 @@ option|ds|dm_start|lower limit DM of search|2
 option|de|dm_end|upper limit DM of search|3000
 option|f|gateware|gateware file|$script_install_folder/../t0/gateware/grex_gateware.fpg
 option|t0|t0_path|path to t0 executable|$script_install_folder/../t0/target/release/grex_t0
+option|cr|clean_rfi_path|path to clean_rfi executable|$script_install_folder/../clean_rfi/target/release/clean_rfi
 option|t2|t2_path|path to t2 folder|$script_install_folder/../t2
 option|sb|snap_bringup_path|path to snap bringup python script|$script_install_folder/../snap_bringup
 option|dg|digital_gain|digital gain for the ADC|4
@@ -70,7 +71,8 @@ choice|1|action|action to perform/pipeline mode|full,cand_socket,cand_file,dada,
 
 # Some non-option constants
 CHANNELS=2048
-KEY=b0ba
+FROM_T0_KEY=b0ba
+FROM_RFI_CLEANING_KEY=cafe
 
 function Script:main() {
   IO:log "[$script_basename] $script_version started"
@@ -85,11 +87,12 @@ function Script:main() {
       dada_init
       IO:announce "Starting T0 -> T1 -> T2 Pipeline"
       # Construct pipeline process launch commands
-      t0=$(t0_cmd "psrdada -k $KEY -s $samples")
+      t0=$(t0_cmd "psrdada -k $FROM_T0_KEY -s $samples")
+      clean_rfi=$(clean_rfi_cmd)
       t1=$(t1_cmd "-coincidencer 127.0.0.1:12345")
       t2=$(t2_cmd)
       trap _int SIGINT
-      parallel -u ::: "$t0" "$t1" "$t2" &
+      parallel -u ::: "$t0" "$clean_rfi" "$t1" "$t2" &
       child=$!
       wait "$child"
       dada_cleanup
@@ -102,10 +105,11 @@ function Script:main() {
       dada_init
       IO:announce "Starting T0 -> T1 Candidate File Pipeline"
       # Construct pipeline process launch commands
-      t0=$(t0_cmd "psrdada -k $KEY -s $samples")
+      t0=$(t0_cmd "psrdada -k $FROM_T0_KEY -s $samples")
+      clean_rfi=$(clean_rfi_cmd)
       t1=$(t1_cmd "")
       trap _int SIGINT
-      parallel -u ::: "$t0" "$t1" &
+      parallel -u ::: "$t0" "$clean_rfi" "$t1" &
       child=$!
       wait "$child"
       dada_cleanup
@@ -118,26 +122,30 @@ function Script:main() {
       dada_init
       IO:announce "Starting T0 -> T1 Candidate File Pipeline"
       # Construct pipeline process launch commands
-      t0=$(t0_cmd "psrdada -k $KEY -s $samples")
+      t0=$(t0_cmd "psrdada -k $FROM_T0_KEY -s $samples")
+      clean_rfi=$(clean_rfi_cmd)
       t1=$(t1_cmd "-coincidencer 127.0.0.1:12345")
       trap _int SIGINT
-      parallel -u ::: "$t0" "$t1" &
+      parallel -u ::: "$t0" "$clean_rfi" "$t1" &
       child=$!
       wait "$child"
       dada_cleanup
       ;;
 
     dada)
-     #TIP: use «$script_prefix dada» to run the pipeline to fill a DADA buffer, but not starting heimdall
-     snap_init
-     dada_init
-     IO:announce "Starting T0 -> PSRDADA Pipeline"
-     t0=$(t0_cmd "psrdada -k $KEY -s $samples")
-     trap _int SIGINT
-     eval "$t0" &
-     child=$!
-     wait "$child"
-     dada_cleanup
+     #TIP: use «$script_prefix dada» to run the pipeline to fill a DADA buffer (inlcluding RFI filtering), but not starting heimdall
+      Os:require "parallel"
+      snap_init
+      dada_init
+      IO:announce "Starting T0 -> DADA Buffer Pipeline"
+      # Construct pipeline process launch commands
+      t0=$(t0_cmd "psrdada -k $FROM_T0_KEY -s $samples")
+      clean_rfi=$(clean_rfi_cmd)
+      trap _int SIGINT
+      parallel -u ::: "$t0" "$clean_rfi"&
+      child=$!
+      wait "$child"
+      dada_cleanup
      ;;
 
     filterbank)
@@ -208,12 +216,14 @@ function snap_init() {
 
 function dada_init() {
   IO:announce "Setting up PSRDADA buffers"
-  dada_db -k $KEY -b $((CHANNELS*samples*4)) -l -p
+  dada_db -k $FROM_T0_KEY -b $((CHANNELS*samples*4)) -l -p
+  dada_db -k $FROM_RFI_CLEANING_KEY -b $((CHANNELS*samples*4)) -l -p
 }
 
 function dada_cleanup() {
   IO:announce "Cleaning up PSRDADA buffers"
-  dada_db -k $KEY -d
+  dada_db -k $FROM_T0_KEY -d
+  dada_db -k $FROM_RFI_CLEANING_KEY -d
 }
 
 ## Pipeline stage execution builders
@@ -248,12 +258,16 @@ function t0_cmd() {
     --filterbank-path $filterbank_path $1"
 }
 
+function clean_rfi_cmd() {
+  echo -e "$clean_rfi_path psrdada -f $FROM_T0_KEY -t $FROM_RFI_CLEANING_KEY"
+}
+
 function t1_cmd() {
   Os:require "taskset" "util-linux"
   Os:require "grep"
 
   echo -e "taskset -c 8-15 \
-    heimdall -k $KEY \
+    heimdall -k $FROM_RFI_CLEANING_KEY \
     -gpu_id 0 \
     -nsamps_gulp $samples \
     -dm_tol 1.05 \
