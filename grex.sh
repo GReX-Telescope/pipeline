@@ -55,6 +55,10 @@ option|f|gateware|gateware file|$script_install_folder/../t0/gateware/grex_gatew
 option|t0|t0_path|path to t0 executable|$script_install_folder/../t0/target/release/grex_t0
 option|cr|clean_rfi_path|path to clean_rfi executable|$script_install_folder/../clean_rfi/target/release/clean_rfi
 option|t2|t2_path|path to t2 folder|$script_install_folder/../t2
+option|dm|dm_min|minimum dm for clustering|50
+option|mi|max_ibox|2^n maximum box filter size|64
+option|ms|min_snr|minimum snr for clustering|12.5
+option|mt|min_snr_t2out|minimum snr reported in t2 output|15
 option|sb|snap_bringup_path|path to snap bringup python script|$script_install_folder/../snap_bringup
 option|dg|digital_gain|digital gain for the ADC|4
 option|rg|requant_gain|set a fixed requantization gain|5
@@ -277,7 +281,7 @@ function t1_cmd() {
 
 function t2_cmd() {
   Os:require "poetry" "pipx install poetry"
-  echo "cd $t2_path; poetry run startT2"
+  echo "cd $t2_path; poetry run startT2 $dm_min $max_ibox $min_snr $min_snr_t2out"
 }
 
 #####################################################################
