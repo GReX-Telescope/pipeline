@@ -261,14 +261,15 @@ function t0_cmd() {
 }
 
 function clean_rfi_cmd() {
-  echo -e "$clean_rfi_path -f $rfi_freq_thresh -s $rfi_time_thresh  dada -f $FROM_T0_KEY -t $FROM_RFI_CLEANING_KEY"
+  Os:require "taskset" "util-linux"
+  echo -e "taskset -c 8 $clean_rfi_path -f $rfi_freq_thresh -s $rfi_time_thresh  dada -f $FROM_T0_KEY -t $FROM_RFI_CLEANING_KEY"
 }
 
 function t1_cmd() {
   Os:require "taskset" "util-linux"
   Os:require "grep"
 
-  echo -e "taskset -c 8-15 \
+  echo -e "taskset -c 9 \
     heimdall -k $FROM_RFI_CLEANING_KEY \
     -gpu_id 0 \
     -nsamps_gulp $samples \
@@ -279,7 +280,8 @@ function t1_cmd() {
 
 function t2_cmd() {
   Os:require "poetry" "pipx install poetry"
-  echo "cd $t2_path; poetry run startT2"
+  Os:require "taskset" "util-linux"
+  echo "cd $t2_path; taskset -c 10-14 poetry run startT2"
 }
 
 #####################################################################
