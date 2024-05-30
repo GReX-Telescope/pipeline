@@ -275,6 +275,7 @@ function t1_cmd() {
     -nsamps_gulp $samples \
     -dm_tol 1.05 \
     -nbeams 1 \
+    -boxcar_max 4 \
     -dm $dm_start $dm_end $1"
 }
 
