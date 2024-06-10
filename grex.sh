@@ -219,8 +219,8 @@ function snap_init() {
 
 function dada_init() {
   IO:announce "Setting up PSRDADA buffers"
-  dada_db -k $FROM_T0_KEY -b $((CHANNELS*samples*4)) -l -p
-  dada_db -k $FROM_RFI_CLEANING_KEY -b $((CHANNELS*samples*4)) -l -p
+  dada_db -k $FROM_T0_KEY -b $((CHANNELS*samples*4)) -l -p -n 8
+  dada_db -k $FROM_RFI_CLEANING_KEY -b $((CHANNELS*samples*4)) -l -p -n 8
 }
 
 function dada_cleanup() {
@@ -275,10 +275,11 @@ function t1_cmd() {
     heimdall -k $FROM_RFI_CLEANING_KEY \
     -gpu_id 0 \
     -nsamps_gulp $samples \
-    -dm_tol 1.05 \
     -nbeams 1 \
+    -dm_tol 1.50 \
     -boxcar_max 4 \
-    -dm $dm_start $dm_end $1"
+    -dm $dm_start $dm_end \
+    -scrunching 0 $1"
 }
 
 function t2_cmd() {
