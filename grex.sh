@@ -94,8 +94,8 @@ function Script:main() {
       clean_rfi=$(clean_rfi_cmd)
       t1=$(t1_cmd "-coincidencer 127.0.0.1:12345")
       t2=$(t2_cmd)
-      trap _int SIGINT
-      parallel -u ::: "$t0" "$clean_rfi" "$t1" "$t2" &
+      trap _int SIGINT SIGTERM
+      parallel --halt now,done=1 -u ::: "$t0" "$clean_rfi" "$t1" "$t2" &
       child=$!
       wait "$child"
       dada_cleanup
@@ -112,8 +112,8 @@ function Script:main() {
       t0=$(t0_cmd "psrdada -k $FROM_T0_KEY -s $samples")
       clean_rfi=$(clean_rfi_cmd)
       t1=$(t1_cmd "")
-      trap _int SIGINT
-      parallel -u ::: "$t0" "$clean_rfi" "$t1" &
+      trap _int SIGINT SIGTERM
+      parallel --halt now,done=1 -u ::: "$t0" "$clean_rfi" "$t1" &
       child=$!
       wait "$child"
       dada_cleanup
@@ -130,8 +130,8 @@ function Script:main() {
       t0=$(t0_cmd "psrdada -k $FROM_T0_KEY -s $samples")
       clean_rfi=$(clean_rfi_cmd)
       t1=$(t1_cmd "-coincidencer 127.0.0.1:12345")
-      trap _int SIGINT
-      parallel -u ::: "$t0" "$clean_rfi" "$t1" &
+      trap _int SIGINT SIGTERM
+      parallel --halt now,done=1 -u ::: "$t0" "$clean_rfi" "$t1" &
       child=$!
       wait "$child"
       dada_cleanup
@@ -147,8 +147,8 @@ function Script:main() {
       # Construct pipeline process launch commands
       t0=$(t0_cmd "psrdada -k $FROM_T0_KEY -s $samples")
       clean_rfi=$(clean_rfi_cmd)
-      trap _int SIGINT
-      parallel -u ::: "$t0" "$clean_rfi"&
+      trap _int SIGINT SIGTERM
+      parallel --halt now,done=1 -u ::: "$t0" "$clean_rfi"&
       child=$!
       wait "$child"
       dada_cleanup
@@ -160,7 +160,7 @@ function Script:main() {
       snap_init
       IO:announce "Starting T0 -> Filterbank Pipeline"
       t0=$(t0_cmd "filterbank")
-      trap _int SIGINT
+      trap _int SIGINT SIGTERM
       eval "$t0" &
       child=$!
       wait "$child"
@@ -172,7 +172,7 @@ function Script:main() {
       snap_init
       IO:announce "Starting T0"
       t0=$(t0_cmd "")
-      trap _int SIGINT
+      trap _int SIGINT SIGTERM
       eval "$t0" &
       child=$!
       wait "$child"
@@ -227,7 +227,7 @@ function Script:main() {
 #####################################################################
 
 _int() { 
-  IO:debug "Caught SIGINT signal!" 
+  IO:debug "Caught signal!" 
   kill -INT "$child" 2>/dev/null
 }
 
