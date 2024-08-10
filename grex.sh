@@ -99,6 +99,7 @@ function Script:main() {
       child=$!
       wait "$child"
       dada_cleanup
+      snap_powerdown
       ;;
 
     cand_file)
@@ -116,6 +117,7 @@ function Script:main() {
       child=$!
       wait "$child"
       dada_cleanup
+      snap_powerdown
       ;;
 
     cand_socket)
@@ -133,6 +135,7 @@ function Script:main() {
       child=$!
       wait "$child"
       dada_cleanup
+      snap_powerdown
       ;;
 
     dada)
@@ -149,6 +152,7 @@ function Script:main() {
       child=$!
       wait "$child"
       dada_cleanup
+      snap_powerdown
      ;;
 
     filterbank)
@@ -160,6 +164,7 @@ function Script:main() {
       eval "$t0" &
       child=$!
       wait "$child"
+      snap_powerdown
       ;;
 
     none)
@@ -171,11 +176,27 @@ function Script:main() {
       eval "$t0" &
       child=$!
       wait "$child"
+      snap_powerdown
       ;;
 
     cleanup)
       #TIP: use «$script_prefix cleanup» to cleanup DADA buffers that were left around from a crash
       dada_cleanup
+      ;;
+
+    snap_off)
+      #TIP: use «$script_prefix snap_off» to power down the SNAP
+      snap_powerdown
+      ;;
+
+    snap_on)
+      #TIP: use «$script_prefix snap_on» to power up the SNAP
+      snap_poweron
+      ;;
+
+    snap_cycle)
+      #TIP: use «$script_prefix snap_cycle» to power up the SNAP
+      snap_powercycle
       ;;
 
     check | env)
@@ -210,9 +231,26 @@ _int() {
   kill -INT "$child" 2>/dev/null
 }
 
+function snap_powerup() {
+  IO:announce "Powering up SNAP"
+  ssh pi "./snap.sh on"
+}
+
+function snap_powerdown() {
+  IO:announce "Powering down SNAP"
+  ssh pi "./snap.sh off"
+}
+
+function snap_powercycle() {
+  IO:announce "Power cycling SNAP"
+  ssh pi "./snap.sh off"
+  ssh pi "./snap.sh on"
+}
+
 function snap_init() {
   IO:announce "Initializing SNAP"
   Os:require "poetry" "pipx install poetry"
+  snap_powercycle
   # Doing it like this because we want the subshell for the path of poetry to work
   eval "cd $snap_bringup_path; poetry run snap_bringup $gateware $snap --gain=$digital_gain; cd -"
 }
