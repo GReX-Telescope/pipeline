@@ -64,7 +64,7 @@ option|rfit|rfi_time_thresh|Sigma cut threshold for RFI excision in time|5
 option|rfif|rfi_freq_thresh|Sigma cut threshold for RFI excision in freq|5
 option|s|snap|IP address of the SNAP|192.168.0.3
 option|mac|mac|MAC address of the NIC we'll get packets on
-choice|1|action|action to perform/pipeline mode|full,cand_socket,cand_file,dada,filterbank,none,check,env,update,cleanup
+choice|1|action|action to perform/pipeline mode|full,cand_socket,cand_file,dada,filterbank,none,check,snap_on,snap_off,snap_cycle,env,update,cleanup
 " -v -e '^#' -e '^\s*$'
 }
 
