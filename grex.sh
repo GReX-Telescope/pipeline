@@ -50,6 +50,7 @@ option|ip|injection_path|path to folder of fake pulses (.dat)|$script_install_fo
 option|vp|voltage_path|directory to save voltage dumps|/hdd/data/voltages/
 option|fp|filterbank_path|directory to save filterbanks|/hdd/data/filterbanks/
 option|dbp|db_path|path to SQLite database|/hdd/data/candidates.db
+option|cp2|t2_cand_path|path to T2 intermediate candidates|/hdd/data/candidates/T2/
 option|ds|dm_start|lower limit DM of search|2
 option|de|dm_end|upper limit DM of search|3000
 option|f|gateware|gateware file|$script_install_folder/../t0/gateware/grex_gateware.fpg
@@ -323,7 +324,7 @@ function t1_cmd() {
 function t2_cmd() {
   Os:require "poetry" "pipx install poetry"
   Os:require "taskset" "util-linux"
-  echo "cd $t2_path; taskset -c 10-14 poetry run startT2"
+  echo -e "cd $t2_path; taskset -c 10-14 poetry run startT2 --outroot $t2_cand_path --db-path $db_path"
 }
 
 #####################################################################
