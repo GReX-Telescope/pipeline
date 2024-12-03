@@ -324,6 +324,7 @@ function t1_cmd() {
 function t2_cmd() {
   Os:require "poetry" "pipx install poetry"
   Os:require "taskset" "util-linux"
+  export PATH="$HOME/.local/bin:$PATH"
   echo -e "cd $t2_path; taskset -c 10-14 poetry run startT2 --outroot $t2_cand_path --db-path $db_path"
 }
 
